@@ -17,7 +17,7 @@ use Flow\PostgreSql\{DeparseOptions, ParsedQuery, Parser};
 use Flow\PostgreSql\Explain\Analyzer\PlanAnalyzer;
 use Flow\PostgreSql\Explain\ExplainParser;
 use Flow\PostgreSql\Explain\Plan\Plan;
-use Flow\PostgreSql\Extractors\{Columns, Functions, QueryDepth, Tables};
+use Flow\PostgreSql\Extractors\{Columns, Functions, OrderBy as OrderByExtractor, QueryDepth, Tables};
 use Flow\PostgreSql\Protobuf\AST\Node;
 use Flow\PostgreSql\QueryBuilder\Clause\{
     CTE,
@@ -31,13 +31,13 @@ use Flow\PostgreSql\QueryBuilder\Clause\{
     LockingClause,
     NullsPosition,
     OnConflictClause,
-    OrderByItem,
+    OrderBy,
     ReturningClause,
     SortDirection,
     WindowDefinition,
     WindowFrame
 };
-use Flow\PostgreSql\QueryBuilder\Clause\{OrderBy, WithClause};
+use Flow\PostgreSql\QueryBuilder\Clause\WithClause;
 use Flow\PostgreSql\QueryBuilder\Condition\{
     All,
     AndCondition,
@@ -368,6 +368,15 @@ function sql_query_tables(ParsedQuery $query) : Tables
 function sql_query_functions(ParsedQuery $query) : Functions
 {
     return new Functions($query);
+}
+
+/**
+ * Extract ORDER BY clauses from a parsed SQL query.
+ */
+#[DocumentationDSL(module: Module::PG_QUERY, type: DSLType::HELPER)]
+function sql_query_order_by(ParsedQuery $query) : OrderByExtractor
+{
+    return new OrderByExtractor($query);
 }
 
 /**
@@ -1171,7 +1180,7 @@ function binary_expr(Expression $left, string $operator, Expression $right) : Bi
  * @param string $name Function name
  * @param list<Expression> $args Function arguments
  * @param list<Expression> $partitionBy PARTITION BY expressions
- * @param list<OrderBy|OrderByItem> $orderBy ORDER BY items
+ * @param list<OrderBy> $orderBy ORDER BY items
  */
 #[DocumentationDSL(module: Module::PG_QUERY, type: DSLType::HELPER)]
 function window_func(
@@ -1709,26 +1718,26 @@ function order_by(
     Expression $expr,
     SortDirection $direction = SortDirection::ASC,
     NullsPosition $nulls = NullsPosition::DEFAULT,
-) : OrderByItem {
-    return new OrderByItem($expr, $direction, $nulls);
+) : OrderBy {
+    return new OrderBy($expr, $direction, $nulls);
 }
 
 /**
  * Create an ORDER BY item with ASC direction.
  */
 #[DocumentationDSL(module: Module::PG_QUERY, type: DSLType::HELPER)]
-function asc(Expression $expr, NullsPosition $nulls = NullsPosition::DEFAULT) : OrderByItem
+function asc(Expression $expr, NullsPosition $nulls = NullsPosition::DEFAULT) : OrderBy
 {
-    return new OrderByItem($expr, SortDirection::ASC, $nulls);
+    return new OrderBy($expr, SortDirection::ASC, $nulls);
 }
 
 /**
  * Create an ORDER BY item with DESC direction.
  */
 #[DocumentationDSL(module: Module::PG_QUERY, type: DSLType::HELPER)]
-function desc(Expression $expr, NullsPosition $nulls = NullsPosition::DEFAULT) : OrderByItem
+function desc(Expression $expr, NullsPosition $nulls = NullsPosition::DEFAULT) : OrderBy
 {
-    return new OrderByItem($expr, SortDirection::DESC, $nulls);
+    return new OrderBy($expr, SortDirection::DESC, $nulls);
 }
 
 /**
@@ -1758,7 +1767,7 @@ function cte(
  *
  * @param string $name Window name
  * @param list<Expression> $partitionBy PARTITION BY expressions
- * @param list<OrderBy|OrderByItem> $orderBy ORDER BY items
+ * @param list<OrderBy> $orderBy ORDER BY items
  * @param null|WindowFrame $frame Window frame specification
  */
 #[DocumentationDSL(module: Module::PG_QUERY, type: DSLType::HELPER)]
