@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Flow\PostgreSql\Tests\Unit\Client\Types;
 
-use Flow\PostgreSql\Client\Types\StringEscaper;
+use Flow\PostgreSql\Client\Types\ArrayLiteralEscaper;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class StringEscaperTest extends TestCase
+final class ArrayLiteralEscaperTest extends TestCase
 {
     public static function provide_escape_always_quoted_cases(): Generator
     {
@@ -55,12 +55,12 @@ final class StringEscaperTest extends TestCase
     #[DataProvider('provide_escape_cases')]
     public function test_escape(string $input, string $expected): void
     {
-        static::assertSame($expected, StringEscaper::escape($input));
+        static::assertSame($expected, ArrayLiteralEscaper::escape($input));
     }
 
     #[DataProvider('provide_escape_always_quoted_cases')]
     public function test_escape_always_quoted(string $input, string $expected): void
     {
-        static::assertSame($expected, StringEscaper::escapeAlwaysQuoted($input));
+        static::assertSame($expected, ArrayLiteralEscaper::escapeAlwaysQuoted($input));
     }
 }

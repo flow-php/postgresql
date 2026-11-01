@@ -8,18 +8,7 @@ use function preg_match;
 use function str_replace;
 use function strcasecmp;
 
-/**
- * Escapes string values for use in PostgreSQL array literals.
- *
- * PostgreSQL array syntax rules:
- * - Elements are separated by commas
- * - Elements containing commas, double quotes, backslashes, curly braces,
- *   or whitespace must be double-quoted
- * - Within double quotes: backslash → \\, double quote → \"
- * - Empty strings must be quoted
- * - String "NULL" must be quoted to distinguish from SQL NULL
- */
-final class StringEscaper
+final class ArrayLiteralEscaper
 {
     /**
      * Escapes a string value for inclusion in a PostgreSQL array literal.

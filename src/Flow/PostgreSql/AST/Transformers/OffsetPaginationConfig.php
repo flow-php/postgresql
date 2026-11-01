@@ -9,7 +9,7 @@ use Flow\PostgreSql\QueryBuilder\Expression\Parameter;
 /**
  * Configuration for OFFSET-based pagination transformations.
  */
-final readonly class PaginationConfig
+final readonly class OffsetPaginationConfig
 {
     /**
      * @param int|Parameter $limit Maximum number of rows to return, or the parameter that carries it

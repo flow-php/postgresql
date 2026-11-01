@@ -21,19 +21,12 @@ use function Flow\PostgreSql\DSL\select;
 use function Flow\PostgreSql\DSL\star;
 
 /**
- * Modifies SELECT queries to add LIMIT/OFFSET pagination.
- *
- * Always overrides any existing LIMIT/OFFSET clauses.
- * Validates that OFFSET requires ORDER BY (strict mode).
- *
- * For set operations (UNION/INTERSECT/EXCEPT), the query is wrapped in a
- * subquery to ensure correct semantics:
- * SELECT * FROM (...original query...) AS _pagination_subq LIMIT x OFFSET y
+ * Overrides LIMIT/OFFSET; OFFSET needs ORDER BY; set operations are wrapped.
  */
-final readonly class PaginationModifier implements NodeModifier
+final readonly class OffsetPaginationModifier implements NodeModifier
 {
     public function __construct(
-        private PaginationConfig $config,
+        private OffsetPaginationConfig $config,
     ) {}
 
     public static function nodeClasses(): array
